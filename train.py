@@ -61,8 +61,8 @@ def train(
             loss_G.backward()
             opt_G.step()
 
-        if epoch % display_every == 0:
-            print(f"[Epoch {epoch}]  D={loss_D.item():.4f}  G={loss_G.item():.4f}")
+        print(f"[Epoch {epoch}]  D={loss_D.item():.4f}  G={loss_G.item():.4f}")
+        if epoch % display_every == 0:            
             save_samples(fake, epoch)
         if epoch % save_every == 0:
             torch.save(G.state_dict(), "generator.pth")
@@ -76,7 +76,7 @@ if __name__ == "__main__":
     generator = SynthesisNetwork(w_dim=z_dim)
     discriminator = Discriminator()
 
-    batch_size = 16
+    batch_size = 32
     dataset = ImageDataset("pokemon_preprocessed", (256, 256))
     loader = DataLoader(dataset=dataset, shuffle=True, batch_size=batch_size)
 
