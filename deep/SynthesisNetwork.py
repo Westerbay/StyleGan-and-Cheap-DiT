@@ -35,7 +35,7 @@ class SynthesisNetwork(nn.Module):
             out_ch = self.CHANNELS[res]
             self.style_blocks[f"{res}x_up"] = StyleBlock(in_ch, out_ch, w_dim)
             self.style_blocks[f"{res}x_2"] = StyleBlock(out_ch, out_ch, w_dim)
-            self.to_rgbs[str(res)] = ToRGB(self.CHANNELS[res])
+            self.to_rgbs[str(res)] = ToRGB(out_ch)
             in_ch = out_ch
 
     def forward(self, w):

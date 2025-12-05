@@ -13,10 +13,9 @@ class StyleBlock(nn.Module):
         self.adain = AdaIN(out_ch, w_dim)
         self.activation = nn.LeakyReLU(0.2)
 
-    def forward(self, x, w, noise=None):
+    def forward(self, x, w):
         B, C, H, W = x.shape
-        if noise is None:
-            noise = torch.randn(B, 1, H, W, device=x.device)
+        noise = torch.randn(B, 1, H, W, device=x.device)
         x = self.conv(x)
         x = x + noise * self.bias
         x = self.adain(x, w)

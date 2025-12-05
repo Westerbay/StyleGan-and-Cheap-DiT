@@ -7,6 +7,6 @@ class PixelNorm(nn.Module):
     def __init__(self):
         super().__init__()
 
-    def forward(self, x):
-        return x / torch.sqrt(torch.mean(x ** 2, dim=1, keepdim=True) + 1e-8)
+    def forward(self, z):
+        return z / torch.sqrt(torch.mean(z ** 2, dim=1, keepdim=True) + 1e-8)
     
