@@ -1,4 +1,5 @@
 from deep.DiscriminatorBlock import DiscriminatorBlock
+from deep.MinibatchStdDev import MinibatchStdDev
 
 import torch.nn as nn
 
@@ -23,10 +24,17 @@ class Discriminator(nn.Module):
             out_ch = self.CHANNELS[res]
             blocks.append(DiscriminatorBlock(in_ch, out_ch))
             in_ch = out_ch
-        self.feature = nn.Sequential(*blocks)
+        self.feature = nn.Sequential(
+            *blocks,
+            MinibatchStdDev(),
+            nn.Conv2d(self.CHANNELS[4] + 1, self.CHANNELS[4], 3, padding=1),
+            nn.LeakyReLU(0.2),
+            nn.Conv2d(self.CHANNELS[4], self.CHANNELS[4], 4),
+            nn.LeakyReLU(0.2),
+        )
         self.classifier = nn.Sequential(
             nn.Flatten(),
-            nn.Linear(self.CHANNELS[4] * 4 * 4, 1)
+            nn.Linear(self.CHANNELS[4], 1)
         )
 
     def forward(self, x):

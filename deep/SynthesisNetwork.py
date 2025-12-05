@@ -45,8 +45,8 @@ class SynthesisNetwork(nn.Module):
         x = self.style_blocks["4x4_2"](x, w)
         img = self.to_rgbs["4"](x)
         for res in self.RESOLUTIONS[1:]:
-            img = F.interpolate(img, scale_factor=2, mode="nearest")
-            x = F.interpolate(x, scale_factor=2, mode="nearest")
+            img = F.interpolate(img, scale_factor=2, mode="bilinear")
+            x = F.interpolate(x, scale_factor=2, mode="bilinear")
             x = self.style_blocks[f"{res}x_up"](x, w)
             x = self.style_blocks[f"{res}x_2"](x, w)
             rgb = self.to_rgbs[str(res)](x)

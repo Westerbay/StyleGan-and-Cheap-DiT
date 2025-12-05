@@ -26,7 +26,7 @@ class ImagePreprocess:
     def resize(self, image):
         w, h = image.size
         if (w, h) != self.resol:
-            image.resize(self.resol, Image.BICUBIC)
+            image = image.resize(self.resol, Image.BICUBIC)
         return image
     
     def random_augment(self, image):
