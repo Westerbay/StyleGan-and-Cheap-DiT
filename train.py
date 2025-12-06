@@ -28,6 +28,8 @@ def train(
 ):
     G = generator.to(device)
     D = discriminator.to(device)
+    G.train()
+    D.train()
 
     opt_G = torch.optim.Adam(G.parameters(), lr=lr, betas=betas)
     opt_D = torch.optim.Adam(D.parameters(), lr=lr, betas=betas)
