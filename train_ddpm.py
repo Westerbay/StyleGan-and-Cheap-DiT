@@ -44,7 +44,8 @@ def train(
             loss.backward()
             optimizer.step()
             global_loss += loss.item()        
-        print(f"[Epoch {epoch}] Loss : {global_loss}")
+        avg_loss = global_loss / len(loader)
+        print(f"[Epoch {epoch}] Average loss per batch : {avg_loss}")
         if epoch % sample_every == 0:
             with torch.no_grad():
                 samples = ddpm.sample(transformer, img_size=img_size, batch_size=16)
@@ -58,10 +59,10 @@ if __name__ == "__main__":
 
     img_size = 256
     dataset = ImageDataset("artwork", img_size)
-    loader = DataLoader(dataset, shuffle=True, batch_size=64)
+    loader = DataLoader(dataset, shuffle=True, batch_size=128)
     print("Dataset length:", len(dataset))
 
-    time_steps = 500
+    time_steps = 1000
     transformer = TransformerDenoiser(
         img_size=img_size,
         patch_size=16,
@@ -74,8 +75,8 @@ if __name__ == "__main__":
     ddpm = DDPM(time_steps, device)
     train(
         transformer, ddpm, loader,
-        epochs=10_000, lr=2e-4, 
+        epochs=500, lr=1e-4, 
         img_size=img_size, time_steps=time_steps,
-        save_every=20, sample_every=5,
+        save_every=50, sample_every=10,
         device=device
     )

@@ -4,14 +4,14 @@ import torch
 
 class DDPM(nn.Module):
 
-    def __init__(self, time_stemps, device):
+    def __init__(self, time_steps, device):
         super().__init__()
-        self.time_stemps = time_stemps
+        self.time_steps = time_steps
         self.device = device
 
         # 1e-4 variance minimale pour les premiers pas de temps
         # 0.02 variance maximale pour les derniers pas de temps
-        betas = torch.linspace(1e-4, 0.02, time_stemps, device=device)
+        betas = torch.linspace(1e-4, 0.02, time_steps, device=device)
         alphas = 1.0 - betas
         alphas_cumprod = torch.cumprod(alphas, dim=0)
 
@@ -34,6 +34,7 @@ class DDPM(nn.Module):
         sqrt_one_minus_alpha_cumprod = self.sqrt_one_minus_alphas_cumprod[t]
         sqrt_recip_alpha = self.sqrt_recip_alphas[t]
 
+        # Mean
         eps_theta = model(x_t, t)
         model_mean = beta_t[:, None, None, None] * eps_theta
         model_mean = model_mean / sqrt_one_minus_alpha_cumprod[:, None, None, None]
@@ -45,10 +46,11 @@ class DDPM(nn.Module):
         noise = torch.randn_like(x_t)
         return model_mean + torch.sqrt(beta_t)[:, None, None, None] * noise
 
+    # Space pixel
     @torch.no_grad()
     def sample(self, model, img_size, batch_size):
         x = torch.randn(batch_size, 3, img_size, img_size, device=self.device)
-        for i in reversed(range(self.time_stemps)):
+        for i in reversed(range(self.time_steps)):
             t = torch.ones((batch_size,), device=self.device).long() * i
             x = self.backward_sample(model, x, t)
         return x
