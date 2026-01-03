@@ -53,10 +53,6 @@ class LatentDiffusionModel(nn.Module):
         return self.vae.decode(z)
 
     def diffusion_training_step(self, x):
-        """
-        x : images dans [-1,1]
-        VAE gelé -> on ne propage pas dans le VAE.
-        """
         B = x.size(0)
         device = self.device
 
@@ -86,5 +82,36 @@ class LatentDiffusionModel(nn.Module):
             t = torch.full((batch_size,), i, device=self.device, dtype=torch.long)
             z = self.ddpm.backward_sample(self.denoiser, z, t)
 
-        x = self.decode(z)  # [-1,1]
+        x = self.decode(z)
         return x
+
+    @torch.no_grad()
+    def sample_api_init(self, batch_size):
+        self.denoiser.eval()
+        self.vae.eval()
+
+        z = torch.randn(
+            batch_size,
+            self.latent_ch,
+            self.latent_size,
+            self.latent_size,
+            device=self.device,
+        )
+        return z
+
+    @torch.no_grad()
+    def sample_api_step(self, z, step):
+        
+        assert 0 <= step < self.time_steps
+
+        t = torch.full(
+            (z.size(0),),
+            self.time_steps - step - 1,
+            device=self.device,
+            dtype=torch.long,
+        )
+
+        z = self.ddpm.backward_sample(self.denoiser, z, t)
+        x = self.decode(z)
+
+        return z, x
