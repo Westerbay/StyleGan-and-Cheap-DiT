@@ -9,6 +9,8 @@ from contextlib import asynccontextmanager
 
 import torch
 import uvicorn
+import base64
+import io
 
 
 # =====================
@@ -66,13 +68,21 @@ def step():
             return {"message": "Generation finished"}
 
         x = (x + 1) / 2.0
-        save_image(x, OUTPUT_IMAGE)
+        images = []
+        for i in range(x.size(0)):
+            buffer = io.BytesIO()
+            save_image(x[i], buffer, format="PNG")
+            buffer.seek(0)
 
-        return FileResponse(
-            OUTPUT_IMAGE,
-            media_type="image/png",
-            filename=f"step_{step_idx}.png",
-        )
+            images.append(
+                base64.b64encode(buffer.read()).decode("utf-8")
+            )
+
+        return JSONResponse({
+            "step": step_idx,
+            "images": images,
+        })
+
     except RuntimeError as e:
         return JSONResponse(status_code=400, content={"error": str(e)})
 
