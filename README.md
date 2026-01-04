@@ -125,6 +125,21 @@ The goal is clarity and compactness, at the cost of **higher sensitivity** to hy
 
 ---
 
+## User Interface (Docker) 
+
+You can use the user interface to try the DiT model.
+
+```bash
+docker pull registry.gitlab.com/westerbay/stylegan-and-cheap-dit/stylegan-and-cheap-dit:v0.1
+
+# With CPU
+docker run -p 5173:5173 registry.gitlab.com/westerbay/stylegan-and-cheap-dit/stylegan-and-cheap-dit:v0.1
+# With CUDA
+docker run -p 5173:5173 --gpus all registry.gitlab.com/westerbay/stylegan-and-cheap-dit/stylegan-and-cheap-dit:v0.1
+```
+
+---
+
 ## Installation
 
 Recommended: Python ≥ 3.10 (repo already uses 3.12 bytecode).
@@ -136,6 +151,13 @@ pip install torch torchvision
 pip install numpy pillow tqdm
 pip install fastapi uvicorn # Optional
 ```
+
+Or
+
+```bash
+pip install -r requirements.txt
+```
+
 
 ---
 
@@ -168,6 +190,9 @@ python train_gan.py
 ### 3) Generate images with StyleGAN
 
 ```bash
+git lfs install   # For pretrained model
+git lfs pull      # For pretrained model
+
 python generate_gan.py
 ```
 
@@ -190,6 +215,9 @@ python train_latentdiff.py
 ### 5) Generate images with Latent Diffusion
 
 ```bash
+git lfs install   # For pretrained model
+git lfs pull      # For pretrained model
+
 python generate_ldm.py
 ```
 
