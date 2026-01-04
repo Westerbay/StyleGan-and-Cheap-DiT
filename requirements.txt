@@ -1,0 +1,9 @@
+torch
+torchvision
+pillow
+tqdm
+numpy
+
+# Optional
+fastapi
+uvicorn
