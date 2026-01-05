@@ -130,12 +130,12 @@ The goal is clarity and compactness, at the cost of **higher sensitivity** to hy
 You can use the user interface to try the DiT model.
 
 ```bash
-docker pull registry.gitlab.com/westerbay/stylegan-and-cheap-dit/stylegan-and-cheap-dit:v0.1
+docker pull registry.gitlab.com/westerbay/stylegan-and-cheap-dit/stylegan-and-cheap-dit:v0.3
 
 # With CPU
-docker run -p 5173:5173 registry.gitlab.com/westerbay/stylegan-and-cheap-dit/stylegan-and-cheap-dit:v0.1
+docker run -p 5173:5173 registry.gitlab.com/westerbay/stylegan-and-cheap-dit/stylegan-and-cheap-dit:v0.3
 # With CUDA
-docker run -p 5173:5173 --gpus all registry.gitlab.com/westerbay/stylegan-and-cheap-dit/stylegan-and-cheap-dit:v0.1
+docker run -p 5173:5173 --gpus all registry.gitlab.com/westerbay/stylegan-and-cheap-dit/stylegan-and-cheap-dit:v0.3
 ```
 
 ---
