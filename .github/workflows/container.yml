@@ -42,7 +42,6 @@ jobs:
           context: .
           load: true
           tags: stylegan-smoke:local
-          cache-from: type=gha
       - name: Smoke test container and UI proxy
         run: |
           docker run -d --name smoke -p 5173:5173 stylegan-smoke:local
@@ -60,8 +59,6 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=min,ignore-error=true,timeout=2m
   release:
     if: startsWith(github.ref, 'refs/tags/v')
     needs: build
