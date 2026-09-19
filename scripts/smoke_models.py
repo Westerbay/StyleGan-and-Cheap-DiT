@@ -13,8 +13,9 @@ torch.set_num_threads(2)
 with torch.inference_mode():
     generator = Generator(z_dim=512, w_dim=512).eval()
     generator.load_state_dict(torch.load("models/generator.pth", map_location="cpu", weights_only=True))
-    images = generator(1, "cpu")
-    assert images.shape == (1, 3, 256, 256)
+    # The discriminator's minibatch-statistics channel requires at least two images.
+    images = generator(2, "cpu")
+    assert images.shape == (2, 3, 256, 256)
     assert torch.isfinite(images).all()
     discriminator = Discriminator().eval()
     discriminator.load_state_dict(torch.load("models/discriminator.pth", map_location="cpu", weights_only=True))
