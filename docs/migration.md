@@ -6,7 +6,7 @@ The canonical repository is [Westerbay/StyleGan-and-Cheap-DiT](https://github.co
 
 - All source branches and Git tags are transferred without rewriting commits.
 - All three LFS objects (generator, discriminator, and latent diffusion checkpoint) are transferred with `git lfs push --all`.
-- Releases `v0.1` and `v0.3` keep their original tags, commits, titles, and release dates. Container links point to GHCR.
+- Releases `v0.1` and `v0.3` keep their original tags, commits, and titles. Their original release dates are recorded in the release notes; GitHub publication timestamps reflect the migration. Container links point to GHCR.
 - Historical container tags are copied with `skopeo --all --preserve-digests`, then verified against the source registry.
 
 | Historical tag | Source commit |
