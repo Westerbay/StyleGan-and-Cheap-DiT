@@ -1,0 +1,30 @@
+name: Migrate legacy container images
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+  packages: write
+jobs:
+  copy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install registry copy tool
+        run: sudo apt-get update && sudo apt-get install -y skopeo
+      - name: Authenticate to GHCR
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: printf '%s' "$GH_TOKEN" | skopeo login --username "$GITHUB_ACTOR" --password-stdin ghcr.io
+      - name: Copy all historical tags and verify digests
+        run: |
+          set -euo pipefail
+          source=registry.gitlab.com/westerbay/stylegan-and-cheap-dit/stylegan-and-cheap-dit
+          target=ghcr.io/westerbay/stylegan-and-cheap-dit
+          for tag in v0.1 v0.3 da6a38b49a14f5a919f05dd5526437593f9af000 f448bf1dd2e96fbcac7c22c849ea78dc7d7e685b; do
+            skopeo copy --all --preserve-digests --retry-times 3 "docker://$source:$tag" "docker://$target:$tag"
+            before=$(skopeo inspect --format '{{.Digest}}' "docker://$source:$tag")
+            after=$(skopeo inspect --format '{{.Digest}}' "docker://$target:$tag")
+            test "$before" = "$after"
+            printf '%s: %s\n' "$tag" "$after" >> "$GITHUB_STEP_SUMMARY"
+          done

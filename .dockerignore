@@ -1,0 +1,15 @@
+.git
+.github
+.venv
+**/__pycache__
+**/*.pyc
+generated
+samples_gan
+samples_ldm
+resources
+landscapes
+artwork
+pokemon
+*preprocessed*
+*.pth
+!models/*.pth

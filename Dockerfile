@@ -1,45 +1,35 @@
-FROM ubuntu:22.04
+FROM node:22-bookworm-slim
 
-ENV DEBIAN_FRONTEND=noninteractive
-ENV PYTHONUNBUFFERED=1
-ENV NVM_DIR=/root/.nvm
-ENV NODE_VERSION=22.12.0
+LABEL org.opencontainers.image.source="https://github.com/Westerbay/StyleGan-and-Cheap-DiT"
+LABEL org.opencontainers.image.licenses="MIT"
 
-RUN apt-get update && apt-get install -y \
-    git \
-    git-lfs \
-    curl \
-    python3 \
-    python3-pip \
-    ca-certificates \
-    bash \
-    && rm -rf /var/lib/apt/lists/*
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PATH="/opt/venv/bin:$PATH"
 
-RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3 python3-venv git ca-certificates tini \
+    && rm -rf /var/lib/apt/lists/* \
+    && python3 -m venv /opt/venv
 
-RUN bash -c "source $NVM_DIR/nvm.sh \
-    && nvm install $NODE_VERSION \
-    && nvm use $NODE_VERSION \
-    && nvm alias default $NODE_VERSION"
-
-ENV PATH=$NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH
-
-RUN node -v && npm -v
-
-WORKDIR /app
-
-RUN git clone https://gitlab.com/Westerbay/stylegan-and-cheap-dit.git
 WORKDIR /app/stylegan-and-cheap-dit
-RUN git lfs install
-RUN git lfs pull
-RUN pip3 install --no-cache-dir -r requirements.txt
+COPY requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
 
-WORKDIR /app
-RUN git clone https://gitlab.com/Westerbay/ui-for-generative-models.git
-WORKDIR /app/ui-for-generative-models/application
-RUN npm install
+# Pin the separate UI repository so a rebuild uses the same frontend source.
+ARG UI_REF=147b5d7c1aa3d7e356845a1c0c32c542eeb6f490
+RUN git init /app/ui-for-generative-models \
+    && cd /app/ui-for-generative-models \
+    && git remote add origin https://github.com/Westerbay/ui-for-generative-models.git \
+    && git fetch --depth=1 origin "$UI_REF" \
+    && git checkout --detach FETCH_HEAD \
+    && rm -rf .git \
+    && cd application && npm ci && npm run build
+
+COPY . .
+# Fail early when the build context contains LFS pointers instead of weights.
+RUN python scripts/check_models.py
+RUN chmod +x docker/entrypoint.sh
 
 EXPOSE 5173 7050
-
-CMD bash -c "cd /app/stylegan-and-cheap-dit && python3 api_ldm.py & npm run start"
-
+ENTRYPOINT ["/usr/bin/tini", "--", "/app/stylegan-and-cheap-dit/docker/entrypoint.sh"]
